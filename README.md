@@ -1,4 +1,4 @@
-# Backd Tokenonics contest details
+# Backd Tokenomics contest details
 
 - $71,250 USDC main award pot
 - $3,750 USDC gas optimization award pot
