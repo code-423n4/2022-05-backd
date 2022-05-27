@@ -1,4 +1,4 @@
-# Backd contest details
+# Backd Tokenonics contest details
 
 - $71,250 USDC main award pot
 - $3,750 USDC gas optimization award pot
@@ -7,8 +7,6 @@
 - [Read our guidelines for more details](https://docs.code4rena.com/roles/wardens)
 - Starts May 27, 2022 20:00 UTC
 - Ends June 3, 2022 19:59 UTC
-
-This repo will be made public before the start of the contest. (C4 delete this line when made public)
 
 **NOTE** This contest is focused exclusively on the *tokenomics* aspect of Backd. [Another contest](https://github.com/code-423n4/2022-04-backd) was already run for the other parts of the protocol.
 Some parts of the tokenomics may however require some understanding of the rest of the protocol.
