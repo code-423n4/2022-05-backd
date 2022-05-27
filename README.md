@@ -30,11 +30,10 @@ BKD tokens are distributed to the following parties:
 
 The token supply is limited to a total of $268\,435\,456$ tokens. 
 $48\%$ are reserved for distribution to LPs and keepers and $8\%$ are reserved for distribution to LPs of Backd governance token pools on AMMs.
-The tokens reserved for distribution to LPs, keepers and LPs of Backd governance token pools on AMMs are released according to a common inflation schedule, i.e., the same inflation schedule applies to their respective allocations. 
+The tokens reserved for distribution to LPs and LPs of Backd governance token pools on AMMs are released according to a common inflation schedule, i.e., the same inflation schedule applies to their respective allocations, while the distribution to keepers follows an independent piecewise-linear inflation schedule. 
 The initial supply of governance tokens will be $2\%$ ($5\,368\,709$) of the total token supply, only comprised of the allocation for pre-launch LPs. 
-Then, a further $56\%$ ($150\,323\,856$) are released according to a perpetual piece-wise linear inflation schedule with inflation rate $r$, comprised of the shares for LPs, keepers and liquidity providers of Backd governance tokens on AMMs. 
-A total of $60\,129\,542$ tokens will be released for this group of stakeholders in the first year. 
-Thereafter, the annual inflation rate is reduced by a factor of $0.6$ every year. 
+Then, a further $56\%$ ($150\,323\,856$) are released according to a perpetual piece-wise linear inflation schedule with inflation rate $r$ for the shares for LPs and liquidity providers of Backd governance tokens on AMMs and an independent inflation rate for keepers.  
+The annual inflation rate $r$ is then reduced by a factor of $0.6$ every year. 
 The total token supply will thereby eventually approach $268\,435\,456$.
 
 The `InflationManager` is the main contract in charge of handling the inflation schedule.
@@ -53,7 +52,7 @@ $$
 where $b_L$ denotes the LP's deposited amount and $S_p$ denotes the total amount deposited in a pool.
 Backd governance tokens received by an LP can be withdrawn immediately. 
 To receive Backd governance tokens, LPs need to stake their LP tokens received from depositing to a Backd pool. 
-They can therefore be used as top up collateral for registered positions and to earn Backd governance tokens simultaneously.
+They can therefore be used for registered positions and to earn Backd governance tokens simultaneously.
 
 LP rewards are mainly managed by `LpGauge`.
 
@@ -63,13 +62,13 @@ LP rewards are mainly managed by `LpGauge`.
 In the Backd protocol, keepers receive Backd governance tokens in proportion to the value of collateral top-ups they execute.
 The value of top ups reported by a keeper $K$ is recorded on-chain by the protocol. 
 The number of Backd governance tokens a keeper receives is computed periodically. 
-A keepers fair share of the periodic distribution is based on a moving average of the total value of top ups that keeper reported during a period, i.e.,
+A keepers fair share of the periodic distribution is based on the total value of top ups that keeper reported during a period, i.e.,
 
 $$
-I_K = V_{MA}(P_K(t)) \ T(t) \,,
+I_K = V(P_K(t)) \ T(t) \,,
 $$
 
-where $V_{MA}(P_K(t))$ is the moving average of the fraction of total top ups executed by a keeper during period $t$ and $T(t)$ is the total value of executed top ups in that period.
+where $V(P_K(t))$ is the fraction of total top ups executed by a keeper during period $t$ and $T(t)$ is the total value of executed top ups in that period.
 
 The rewards for keepers are mostly handled in the `KeeperGauge`.
 
