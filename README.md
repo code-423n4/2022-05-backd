@@ -96,7 +96,6 @@ The rewards for Backd AMM LPs are planned to be initially distributed through ex
 | contracts/Controller.sol                       |              86 |
 | contracts/RewardHandler.sol                    |              44 |
 | contracts/StakerVault.sol                      |             262 |
-| contracts/testing/MockVotingEscrow.sol         |              42 |
 | contracts/tokenomics/AmmGauge.sol              |             116 |
 | contracts/tokenomics/BkdToken.sol              |              20 |
 | contracts/tokenomics/FeeBurner.sol             |              73 |
