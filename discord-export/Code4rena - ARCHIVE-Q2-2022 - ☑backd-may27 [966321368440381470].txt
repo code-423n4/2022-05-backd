@@ -1,0 +1,624 @@
+==============================================================
+Guild: Code4rena
+Channel: ARCHIVE-Q2-2022 / ☑backd-may27
+==============================================================
+
+[04/20/2022 1:05 PM] kartoonjoy
+👋 Hello and welcome to the contest channel for the $100K **Backd** contest!
+📆 Contest opens April 21, 2022 at 0:00 UTC and runs through April 27, 2022 at 23:59 UTC (7 days).
+Please give a warm welcome to the Backd team, particularly @Daniel, @maxbphi, @Chase and @samwern, who will be available for questions either here in the channel or via DM.
+We'll be posting relevant links, documentation, etc. here, so if you intend to participate in this contest, consider enabling notifications for this channel. 🐺 ⏰
+Contest Page: https://code4rena.com/contests/2022-04-backd-contest
+
+{Embed}
+https://code4rena.com/contests/2022-04-backd-contest
+Code4rena Backd contest
+$100,000 USDC
+21 April 2022—27 April 2022
+Code4rena - ARCHIVE-Q2-2022 - ☑backd-may27 [966321368440381470].txt_Files/C4-banner-7C19B.png
+
+{Reactions}
+👋 (6) 9365peeposwag 
+
+[04/21/2022 5:20 AM] 100proof
+When I run `brownie test` I see this:
+
+```
+ImportError: Error importing plugin "fixtures.deployments": cannot import name 'Literal' from 'typing' (/usr/local/Cellar/python@3.7/3.7.10_2/Frameworks/Python.framework/Versions/3.7/lib/python3.7/typing.py)
+```
+
+Any idea why?
+
+
+[04/21/2022 5:21 AM] 100proof
+Hmm, looks like I might need to upgrade to python3.8
+
+
+[04/21/2022 5:33 AM] 100proof
+Yes, that was the problem. Upgrade to python3.8 if you see the same problem.
+
+{Reactions}
+🙏 (2) 
+
+[04/21/2022 6:29 AM] 100proof
+Also, I had some trouble with `ganache` not loading properly when running `brownie test` .
+
+It turns out that you need to run `npm install -g ganache@alpha` to install `ganache v7.0.0-alpha.2`
+
+
+[04/21/2022 7:34 AM] danhper
+Hi there!
+I'm Daniel, one of the cofounder of Backd. 
+I'm looking forward to your feedback! Let me know if you have any questions!
+
+
+[04/21/2022 7:36 AM] danhper
+The latest version of ganache (not alpha) should work too!
+
+
+[04/21/2022 3:09 PM] bernd_42
+I'm on Mac OS Silicon (M1) using python@3.9.1 and installing all requirements lead to following error:
+
+```
+filename = fspath(filename)  # Does type-checking of `filename`
+TypeError: expected str, bytes or os.PathLike object, not int
+  ----------------------------------------
+  ERROR: Failed building wheel for pyyaml  
+```
+
+Anyone else having similar issues?
+
+
+[04/21/2022 3:43 PM] bernd_42
+Got it working with python@3.8.6. Running `brownie test` or `brownie compile` caused an error with vyper. Can be fixed with https://stackoverflow.com/questions/70331345/eth-brownie-installation-error-tried-all-3-methods-linux
+
+{Embed}
+https://stackoverflow.com/questions/70331345/eth-brownie-installation-error-tried-all-3-methods-linux
+Eth-Brownie Installation error: Tried all 3 methods [linux]
+I tried installing brownie via pipx, pip and the github repo , but each time I get this error on running brownie:
+Traceback (most recent call last):
+  File "/usr/bin/brownie", line 33, in...
+Code4rena - ARCHIVE-Q2-2022 - ☑backd-may27 [966321368440381470].txt_Files/apple-touch-icon%402-C50E4.png
+
+
+[04/21/2022 3:55 PM] 0xdjango
+Hey Backd team, am I correct in thinking that all in-scope contracts have already been deployed? Or maybe all except those related to topup action?
+
+
+[04/22/2022 9:41 AM] samwern#8094
+Hey @Django | Saloon Finance, yes, you are correct. Those related to the top up action have not been deployed. Also the strategies have been deployed, but the in-scope strategy contracts contain some improvements/modifications (which have not been deployed).
+
+{Reactions}
+👍 
+
+[04/22/2022 7:44 PM] _t1nt1n
+The docs over at https://docs.backd.fund/ are very well written! Kudos to the team 🙂
+
+{Reactions}
+❤️ 
+
+[04/23/2022 12:14 AM] 100proof
+Could someone explain to me what functions `prepareAddress`, `resetAddress` and `executeAddress` in contract `AddressProvider` are all about? Please provide as much detail as possible since I'm new to smart contract auditing and am trying to learn common patterns.
+
+
+[04/23/2022 7:52 AM] chase_manning
+The Address Provider stores contract addresses to be used by the rest of the protocol.
+
+
+[04/23/2022 7:53 AM] chase_manning
+For example, if somewhere in the Backd Protocol, we wanted to use some Oracle. Instead of hard coding that address in several other Backd contracts, we could store it in the Address Provider, and query it from there.
+
+
+[04/23/2022 7:54 AM] chase_manning
+The benefit of storing key addresses in the Address Provider, is that the address is not duplicated in lots of places. So we have a centralised way of managing these addresses. For example, if we wanted to update an address, we would just have to do it in one place instead of many.
+
+
+[04/23/2022 7:55 AM] chase_manning
+This pattern of `prepare`, `reset` and `execute` is quite common. It is a security measure to limit the ability for the Admin to execute a malicious action.
+
+
+[04/23/2022 7:56 AM] chase_manning
+If the addresses could be updated directly and immediately by the Admin, then the admin could potentially drain funds from the protocol by changing a critical address to something malicious.
+
+
+[04/23/2022 7:56 AM] chase_manning
+Instead, the admin must first `prepare` an address update. This preparation is visible to anyone and allows users to make sure that the change is safe for the protocol.
+
+
+[04/23/2022 7:57 AM] chase_manning
+There is a delay period before a `prepared` change can be executed. Allowing enough time for the community to review the change. And to withdraw their funds if they view the change as undesirable.
+
+
+[04/23/2022 7:57 AM] chase_manning
+Once the delay has passed, the prepared change can be `executed` which will make it live
+
+
+[04/23/2022 7:59 AM] chase_manning
+This pattern is often called a Timelock.
+
+
+[04/23/2022 7:59 AM] chase_manning
+You can read more about it and see some common code examples here: https://github.com/OpenZeppelin/openzeppelin-contracts/tree/6c1a6340539be1967e63158fb9f997ef62d47f70/contracts/governance
+
+{Reactions}
+thankyou (2) 
+
+[04/23/2022 9:48 PM] 100proof
+Thank you @Chase. I was able to piece together the intention of the functions by reading some more code but it's always nice to get such a clear answer from someone to confirm. Thanks for taking the time to explain that in so much detail.
+
+
+[04/24/2022 12:33 AM] 100proof
+Why is the type of address in `TopUpAction.register`  `bytes32` and not just `address`? The documentation states "first 20 bytes will typically be the address". Is there any meaning assigned to the remaining 12 bytes?
+
+
+[04/24/2022 7:25 AM] chase_manning
+Most Lending protocols index a users topup via their address, in which case an `address` type would work well for this (which is what we had it as in a previous version of the code). However, when integrating the TopupUpAction with some other lending protocols, we discovered that some of them index a users topup with a `bytes32` type. We decided to change to using `bytes32` type so that we can support more lending protocols. For protocols that use `address` to index, the other 12 bites go unused.
+
+{Reactions}
+thankyou (4) 
+
+[04/24/2022 8:10 PM] 0xdjango
+Hi, I'm having trouble tracking down the base contract where variables such as this are set. `currentUInts256[_KEEPER_FEE_FRACTION_KEY]`
+
+
+[04/24/2022 11:05 PM] 100proof
+@Django | Saloon Finance is it `contracts/utils/Preparable.sol`?
+
+
+[04/24/2022 11:06 PM] 100proof
+Any idea why those other protocols use `bytes32`?
+
+
+[04/24/2022 11:06 PM] 0xdjango
+Yes thanks!
+
+
+[04/25/2022 5:09 AM] Deleted User
+Probably because in some rust chains address can be longer than 20 bytes. For example btc address is 32+1 = 33 bytes.
+Probably this allows to extend contract to other chains having address size <= 32 bytes.
+
+
+[04/25/2022 7:08 AM] chase_manning
+`_KEEPER_FEE_FRACTION_KEY` is set in the `TopUpActionFeeHandler` using the `Preparable` contract it extends from.
+
+{Reactions}
+👍 
+
+[04/25/2022 7:09 AM] chase_manning
+No sorry I'm not sure why they use `bytes32`
+
+
+[04/25/2022 12:17 PM] danhper
+As far as I know, some protocols allow a single address to have multiple positions, so the first 20 bytes are the address and the other 12 bytes are used as an identifier for this address.
+
+
+[04/25/2022 1:40 PM] 0xdjango
+Are y'all sticking solely to Ethereum or planning to branch out to other chains?
+
+
+[04/25/2022 1:42 PM] chase_manning
+Initial launch will just be on Ethereum
+
+
+[04/25/2022 1:43 PM] chase_manning
+It's likely we will support other chains in future.
+
+{Reactions}
+👍 
+
+[04/25/2022 2:07 PM] 0xdjango
+Looks like the github links in the "Deployed Contracts" section of your docs are broken. Could I please get the updated link?
+
+
+[04/25/2022 2:16 PM] danhper
+Which links are you referring to? I could not find the broken links
+
+
+[04/25/2022 2:16 PM] 0xdjango
+Hi, all links on this page: https://developers.backd.fund/contracts.html
+
+
+[04/25/2022 2:31 PM] danhper
+Oh right! Thanks for spotting this, will fix! In the meanwhile, you can find all the contracts in the contest repo!
+https://code4rena.com/contests/2022-04-backd-contest
+
+{Embed}
+https://code4rena.com/contests/2022-04-backd-contest
+Code4rena Backd contest
+$100,000 USDC
+21 April 2022—27 April 2022
+Code4rena - ARCHIVE-Q2-2022 - ☑backd-may27 [966321368440381470].txt_Files/179d922e-32a6-4cbb-bf78-830bd73af3e4-EF0C7
+
+
+[04/25/2022 2:36 PM] 0xdjango
+Thanks, could you accept my friend request? I'd like to DM if possible
+
+{Reactions}
+👍 
+
+[04/25/2022 5:13 PM] ksk2345
+@Chase, @Daniel : In the github repo for c4 audit, there is a whole set of contracts under the tokenomics directory, Are all these out of scope of current audit. Have they been already audited earlier ?
+
+
+[04/25/2022 5:31 PM] chase_manning
+They are out of scope
+
+
+[04/25/2022 5:31 PM] chase_manning
+They will be audited later
+
+
+[04/26/2022 12:28 AM] hake_stake
+What does it mean for the pool and vault allocations to be correctly balanced? Trying to understand the purpose of _rebalanceVault() in the EthPool/ERC20Pool
+
+
+[04/26/2022 6:34 AM] chase_manning
+To optimise on gas, not all of the underlying is deposited into the strategy. Instead, a buffer is stored in the Vault of idle underlying. This is used to facilitate low gas deposits and withdrawals.
+
+
+[04/26/2022 6:35 AM] chase_manning
+When this buffer of idle funds gets too far away from the target allocation, a rebalance is done to bring the idle amount back in line with the target.
+
+
+[04/26/2022 6:37 AM] chase_manning
+The general effect of this, is that small or medium deposits or withdrawals will usually be cheap on gas, as they do not require a full deposit into the strategy. And larger deposits or withdrawals (which would imbalance the idle ratio) would trigger a full deposit or withdrawal from the strategy.
+
+{Reactions}
+🙏 
+
+[04/26/2022 10:38 PM] acegawd
+DM @Daniel
+
+
+[04/28/2022 12:02 AM] C4
+**🚨 CONTEST ALERT**
+
+@🐺wardens The Backd contest is now closed! Huge thanks to everyone who participated 🔍, whether you submitted a finding or not.
+
+What's next: the Backd team will review the findings over the next couple of days, and then we'll pass them off to the judge. Keep an eye on #📢announcements for regular updates on how the contest is progressing through awarding 🤑🏆, judging 🧑‍⚖️ and reporting 📜. Feel free to ping a gardener if you have questions along the way!
+
+
+[05/09/2022 7:14 PM] okkothejawa
+How is this one going?
+
+
+[05/09/2022 7:54 PM] liveactionllamac4
+Looks like the sponsor is just doing a quick review of the judging before we finalize. If no more discussion is needed between the judge/sponsor, then I wouldn't be surprised if awards were announced later this week. 🤞
+
+{Reactions}
+🎉 (3) 
+
+[05/12/2022 4:15 PM] 0x4non
+could we get a sneaky preview? its my first participation and i fell a bit anxious
+
+
+[05/12/2022 8:43 PM] liveactionllamac4
+The only sneaky preview I have is that awards will probably be officially announced by the end of the week. 🔮 😉
+
+{Reactions}
+🍺 (2) 
+
+[05/12/2022 9:55 PM] 0xleastwood
+You can check open PRs on their code423n4.com repo if you want to see some alpha
+
+{Reactions}
+🤫 😉 (2) lol true 
+
+[05/13/2022 2:25 AM] 0x4non
+I'm crying of happiness
+
+{Reactions}
+hi5 💜 
+
+[05/25/2022 6:35 PM] kartoonjoy
+👋 Hello and welcome again to the contest channel for the $75K USDC **Backd Tokenomics** contest!
+
+📆 Contest opens 05/27/2022 8:00 PM (20:00 UTC)  and runs through 06/03/2022 7:59 PM (19:59 UTC) (7 days).
+
+Please give a warm welcome to the Backd team, particularly @Daniel, @maxbphi, @Chase and @samwern, who will be available for questions either here in the channel or via DM.
+
+We'll be posting relevant links, documentation, etc. here, so if you intend to participate in this contest, consider enabling notifications for this channel. 🐺 ⏰
+
+Contest Page: https://code4rena.com/contests/2022-05-backd-contest
+
+{Reactions}
+fire (3) 
+
+[05/25/2022 6:43 PM] chase_manning
+Hey everyone!! 👋
+
+{Reactions}
+👋 (13) 
+
+[05/27/2022 8:08 PM] 0x1f8b
+Hi `contracts/testing/MockVotingEscrow.sol` appears in scope, is that right?
+
+
+[05/28/2022 6:36 AM] chase_manning
+Feel free to ask any questions here!
+
+
+[05/28/2022 6:36 AM] chase_manning
+Probably a bit better than DMs in case anyone else has the same question 😃
+
+
+[05/28/2022 6:36 AM] chase_manning
+@Daniel This should probably be out of scope right?
+
+
+[05/28/2022 6:45 AM] 0x1f8b
+I think so
+
+
+[05/28/2022 7:04 AM] chase_manning
+Confirmed out of scope 😃
+
+{Reactions}
+👍 
+
+[05/28/2022 7:04 AM] chase_manning
+Thanks!! 🙏
+
+
+[05/28/2022 8:35 AM] 0x1f8b
+Could you make an announcement with this change? Maybe some wardens didn't read this channel
+
+
+[05/28/2022 10:43 AM] danhper
+I just fixed the readme, thanks for flagging that!
+
+
+[05/28/2022 3:57 PM] scaraven
+Hi, I have a few questions
+
+
+[05/28/2022 3:58 PM] scaraven
+Are keepers and whether they report the correct amount of top ups in or out of scope?
+
+
+[05/28/2022 3:58 PM] scaraven
+and with the interest given out, would a fixed amount be distributed by the inflation manager and allocated proportionally to the 3 different parts (LP provider, keeper and AMM LPs) and *then* the interest allocated to any given address will be calculated by the 3 respective parts?
+
+
+[05/29/2022 9:27 AM] chase_manning
+Yes this is correct 😃
+
+
+[05/29/2022 10:09 AM] chase_manning
+The keeper implementations are out of scope 😃
+
+{Reactions}
+👍 
+
+[05/31/2022 4:35 AM] 0xkitsune
+Just a quick additional question on scope. 
+
+I was looking in the code4arena repo with all of the code from the code base and was curious is all contracts in the `contracts` dir are in scope for security/optimizations?
+
+https://github.com/code-423n4/2022-05-backd/tree/main/protocol/contracts
+
+or are there some that are out of scope in here
+
+
+[05/31/2022 8:42 AM] chase_manning
+The only contracts that are in scope are the ones listed here:
+https://github.com/code-423n4/2022-05-backd#files-in-scope
+
+
+[05/31/2022 8:42 AM] chase_manning
+We did another Code4Arena audit a few weeks ago that included the rest of them.
+
+
+[05/31/2022 8:56 AM] pumpkingwok
+hi guys, i'm happy to be here, I would like to ask a question related to a contract within the scope, just to understand properly the utility of this one. Could i contact someone in PM ? Thanks a lot in advance
+
+
+[05/31/2022 9:09 AM] chase_manning
+You can contact me directly if you like 😃
+
+
+[05/31/2022 9:10 AM] chase_manning
+Might be better to ask the question here in case anyone else has the same question, or if the question needs input from several different Backd team members
+
+
+[05/31/2022 9:10 AM] chase_manning
+But both is okay! 😃
+
+
+[05/31/2022 12:59 PM] 0xkitsune
+got it, thanks!
+
+
+[05/31/2022 9:56 PM] nine_december
+Hi! Need to ask a question! Is there someone from the team available? Thanks!
+
+
+[06/01/2022 7:08 AM] chase_manning
+I'm available 😃
+
+
+[06/01/2022 9:54 AM] nine_december
+Cool! Sending you a dm shortly!
+
+
+[06/02/2022 6:16 PM] liveactionllamac4
+Hi @🐺wardens - just wanted to give you a heads up that the report from the April Backd contest is now published 🙂
+https://code4rena.com/reports/2022-04-backd
+
+{Reactions}
+🎉 (18) 
+
+[06/02/2022 7:58 PM] jessus9409
+I send the report for backd but my name is not here😩
+
+
+[06/02/2022 8:45 PM] liveactionllamac4
+I've dm'd you!
+
+
+[06/03/2022 3:14 AM] 100proof
+@Daniel Under what circumstances would `deactivateWeightBasedKeeperDistribution` be called?
+
+
+[06/03/2022 5:22 PM] m4rio.eth
+heyo any backd dev here?
+
+
+[06/03/2022 5:23 PM] m4rio.eth
+@Chase ?
+
+
+[06/03/2022 5:26 PM] chase_manning
+Yes, the whole team is in this channel 😃
+
+
+[06/03/2022 5:27 PM] m4rio.eth
+can i dm you? 😄
+
+
+[06/03/2022 5:27 PM] chase_manning
+Yeah for sure!
+
+
+[06/03/2022 5:27 PM] m4rio.eth
+added as a friend
+
+{Reactions}
+thumbsup 
+
+[06/03/2022 5:34 PM] m4rio.eth
+@Chase
+
+
+[06/03/2022 8:02 PM] C4
+**🚨 CONTEST ALERT**
+
+@🐺wardens The **Backd** contest is now closed! Huge thanks to everyone who participated 🔍, whether you submitted a finding or not.
+
+What's next: the **Backd** team will review the findings over the next couple of days, and then we'll pass them off to the judge. Keep an eye on #📢announcements for regular updates on how the contest is progressing through awarding 🤑🏆, judging 🧑‍⚖️ and reporting 📜. Feel free to ping a gardener if you have questions along the way!
+
+{Reactions}
+nice (5) 
+
+[07/07/2022 5:37 PM] itsmetechjay
+🤑 🎉  Awards for **Backd Tokenomics**:
+
+$9,683.69 USDC » WatchPug (@JtP | WATCHPUG, @Ming | WATCHPUG)
+$7,631.79 USDC » @scaraven 
+$7,181.25 USDC » @Picodes | Angle 
+$6,831.33 USDC » @0x52 
+$6,380.60 USDC » @hansfriese 
+$5,465.07 USDC » @0xNineDec 
+$3,532.99 USDC » @csanuragjain 
+$3,472.67 USDC » SmartSek (@Django | Saloon Finance, @hake | SmartSek)
+$2,976.36 USDC » @fatherOfBlocks 
+$2,904.42 USDC » @IllIllI 
+$2,891.54 USDC » @Ruhum 
+$2,852.36 USDC » @shenwilly 
+$2,143.98 USDC » @0x1f8b 
+$1,634.57 USDC » @unforgiven 
+$909.59 USDC » @StyxRave 
+$737.78 USDC » @JC
+$737.78 USDC » @peritoflores 
+$453.22 USDC » BowTiedWardens (@BowTiedHeron, @BowTiedPickle, @BowTiedFirefox, @Dravee, @m4rio.eth)
+$451.89 USDC » @MiloTruck 
+$399.87 USDC » @SecureZeroX 
+$352.96 USDC » @Bernd 
+$295.13 USDC » @DefSec 
+$224.21 USDC » @cccz 
+$212.43 USDC » @sashik_eth 
+$182.50 USDC » @c3phas 
+$177.75 USDC » @Chom 
+$177.75 USDC » 0x29A (@anon, @Rotcivegaf)
+$177.75 USDC » @Funen 
+$171.81 USDC » @0xNazgul 
+$171.81 USDC » @Sm4rty 
+$171.81 USDC » 0xf15ers (@remora0, @twojoy)
+$171.81 USDC » @Sloth 
+$171.81 USDC » @delfin454000 
+$171.81 USDC » @gzeon 
+$171.81 USDC » @hake | SmartSek 
+$171.81 USDC » @sach1r0 
+$171.81 USDC » @simon135 
+$171.81 USDC » @thinklab 
+$171.45 USDC » @catchup 
+$171.45 USDC » @Kaiziron 
+$171.45 USDC » @Waze 
+$171.19 USDC » @robee 
+$159.01 USDC » @cryptphi 
+$159.01 USDC » @dipp 
+$119.82 USDC » @codexploder 
+$119.82 USDC » @bardamu 
+$119.82 USDC » @masterchief 
+$119.82 USDC » @Kumpa 
+$113.88 USDC » @hyh 
+$113.83 USDC » @0xKitsune 
+$73.63 USDC » @Tadashi 
+$62.68 USDC » @Dravee 
+$62.68 USDC » @djxploit 
+$62.68 USDC » @Tomio 
+$62.68 USDC » @0xkatana 
+$57.93 USDC » @Fitraldys 
+$57.93 USDC » @Randyyy 
+$57.93 USDC » @RoiEvenHaim 
+
+🏁 Findings summary 
+---------------------------
+High risk findings: 4 total, 2 unique
+Med risk findings: 25 total, 18 unique
+Gas optimization reports: 41
+QA reports: 42
+
+Congratulations all!  💸 💸 💸
+
+{Reactions}
+🎉 (8) 
+
+[07/07/2022 5:37 PM] 0xdjango
+Hi @Jay | C4 this is the Backd contest channel
+
+{Reactions}
+🤣 😂 (3) 
+
+[07/07/2022 5:40 PM] itsmetechjay
+Yes it is!  We will be posting award announcements in the respective contest channels moving forward. 🙂
+
+{Reactions}
+👍 (12) 👆 
+
+[07/07/2022 5:45 PM] scaraven
+
+
+{Attachments}
+Code4rena - ARCHIVE-Q2-2022 - ☑backd-may27 [966321368440381470].txt_Files/unknown-B6638.png
+
+{Reactions}
+🤣 (14) 🐶 (3) 
+
+[07/07/2022 5:46 PM] scaraven
+its my first time i have ever come in the top 5 so I'm over the moon right now
+
+{Reactions}
+🎉 (17) yay 5️⃣ 🏆 
+
+[07/07/2022 5:47 PM] scaraven
+so thanks c4arena for allowing me to do something I enjoy
+
+{Reactions}
+💜 (8) 🙌 (2) 
+
+[07/07/2022 6:22 PM] nine_december
+Same here! Was one of my first audits so I’m adding gratitude to C4 for giving me a chance as well!
+
+{Reactions}
+🎉 (8) hi5 (3) 🏆 (2) 
+
+[07/07/2022 6:33 PM] sm4rty_
+It is also my first audit bounty, glad to be here... 😇😇
+
+{Reactions}
+🎉 (10) yay (3) 
+
+==============================================================
+Exported 104 message(s)
+==============================================================
